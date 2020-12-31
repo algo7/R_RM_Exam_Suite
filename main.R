@@ -72,12 +72,12 @@ occForecast<-function(){
   ## Re-order the df by DOW
   orderedDf<-NULL
   for (dsow in DOW) {
-   orderedDF<-rbind(pp,df[df$'100' ==dsow,])
+    orderedDf<-rbind( orderedDf,df[df$'100' ==dsow,])
   }
   # Split the ordered df into separate dfs grouped by DOW + remove NAs
   splitedOrderedDf<-list()
   for (i in 1:length(DOW)) {
-    splitedOrderedDf[[i]]<-na.omit(subset(pp,pp$'100' %in% DOW[i]))
+    splitedOrderedDf[[i]]<-na.omit(subset(orderedDf,orderedDf$'100' %in% DOW[i]))
   }
 
   # Calculate the col means of each DBA values to create the avg booking curve table
