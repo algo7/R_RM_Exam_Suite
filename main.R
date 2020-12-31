@@ -8,7 +8,6 @@ library(stringr)
 
 # File import func
 fileImport<-function(header){
-  print(header)
   # Import the file
   filex<-file.choose()
   # Fix newline problem
@@ -172,6 +171,7 @@ forecastAnalysis<-function(){
   LOS_1<-grep("LOS1.",colnames(df))
   # Get the difference between each LOS1.XX => all other LOS
   DIFF<-diff(LOS_1)
+  DIFF<-DIFF-1
   # Get the last column no.
   lastColNo<-which(colnames(df)==colnames(df)[length(colnames(df))])
   # Get LOS range
@@ -180,22 +180,28 @@ forecastAnalysis<-function(){
    if (!is.na(LOS_1[i+1])) {
      losRange<-c(losRange,seq(LOS_1[i],LOS_1[i+1]))
    }else{
-     print(i)
-     print(LOS_1[i])
      losRange<-c(losRange,seq(LOS_1[i],lastColNo))
    }
   }
   # Remove duplicates
   losRange<-unique(losRange[-length(losRange)])
-  # Calculate the rooms occupied for the 1st row
-  df[,lastColNo][1]<-sum(df[,losRange][1,],na.rm = TRUE)
+  # Sum of each row starting from the 3rd row
+  sumRest<-numeric()
+  for (i in 1:length(df[,1])) {
+    sumRest<-c(sumRest,sum(df[,losRange][i,],na.rm = TRUE))
+  }
+  # Fill the room occupied with the sum of each row
+  df[,lastColNo][1:length(df[,lastColNo])]<-sumRest
   # Calculate the rooms occupied for the 2nd row
-  ## Get the LOS 2,3... from the 1st row
+  ## Get the LOS 2,3...
   losFilterRowSec<-losRange[!(losRange %in% LOS_1)]
-  # Sum of the 2nd row
-  df[,lastColNo][2]<-sum(df[,losRange][2,],na.rm = TRUE)
   # Sum of LOS > 1 of the 1st row
   df[,lastColNo][2]<-sum(df[1,losFilterRowSec])+df[,lastColNo][2]
+  # Calculate room occupied for the rest
+  df[,lastColNo][3:length(df[,lastColNo])]
+
+
+
 }
 
 
