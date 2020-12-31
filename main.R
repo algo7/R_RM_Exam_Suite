@@ -42,7 +42,7 @@ cli::cat_boxx(welcomeMsg)
 # Main Menu List
 menuListT1<-c(
   'Occupancy Forecast with LOS and Pick-Ups',
-  'Forecast Analysis (Forecast Table with All LOS Required)',
+  'Forecast Analysis (Forecast Table with All LOS Required | Change ALL LOS1 to LOS1-X)',
   'Back'
 )
 
@@ -180,13 +180,22 @@ forecastAnalysis<-function(){
    if (!is.na(LOS_1[i+1])) {
      losRange<-c(losRange,seq(LOS_1[i],LOS_1[i+1]))
    }else{
+     print(i)
+     print(LOS_1[i])
      losRange<-c(losRange,seq(LOS_1[i],lastColNo))
    }
   }
   # Remove duplicates
   losRange<-unique(losRange[-length(losRange)])
-  # Calculate the rooms occupied for the first row
-  df[,lastColNo][1]<-sum(na.omit(df[,losRange][1,]))
+  # Calculate the rooms occupied for the 1st row
+  df[,lastColNo][1]<-sum(df[,losRange][1,],na.rm = TRUE)
+  # Calculate the rooms occupied for the 2nd row
+  ## Get the LOS 2,3... from the 1st row
+  losFilterRowSec<-losRange[!(losRange %in% LOS_1)]
+  # Sum of the 2nd row
+  df[,lastColNo][2]<-sum(df[,losRange][2,],na.rm = TRUE)
+  # Sum of LOS > 1 of the 1st row
+  df[,lastColNo][2]<-sum(df[1,losFilterRowSec])+df[,lastColNo][2]
 }
 
 
