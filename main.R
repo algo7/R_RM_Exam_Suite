@@ -224,9 +224,20 @@ forecastAnalysis<-function(){
   df[,lastColNo][3:length(df[,lastColNo])]<-
     sumLosSecThird[c(-1,-lLosSecThird)]+ df[,lastColNo][3:length(df[,lastColNo])]
 
+  # Ask for no. of days to forecast
+  fDate<-toInt(inpSplit('How many days in advance do you want to forecast: '))
+  lastHistoricalDate<-length(df[,lastColNo])-fDate
+  # The minimum hotel capacity
+  minCap<-max(df[,lastColNo][1:lastHistoricalDate-1])
+
   cli_alert_success('Forecast Analysis: ')
   cat('\n')
   print(df)
+  cat('\n')
+
+  cli_alert_success('Minimum Hotel Capacity ')
+  cat('\n')
+  print(minCap)
   cat('\n')
 
 }
