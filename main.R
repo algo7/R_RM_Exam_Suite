@@ -2,8 +2,23 @@
 # Load libraries
 library(cli)
 library(dplyr)
+library(stringr)
 
 # Misc.:
+
+# File import func
+fileImport<-function(header){
+  print(header)
+  # Import the file
+  filex<-file.choose()
+  # Fix newline problem
+  cat("\n", file = filex, append = TRUE)
+  # Read the file as CSV
+  x<-read.csv(file=filex,header = header)
+
+  return (x)
+}
+
 
 # Split input func
 inpSplit<-function(text){
@@ -27,6 +42,7 @@ cli::cat_boxx(welcomeMsg)
 # Main Menu List
 menuListT1<-c(
   'Occupancy Forecast with LOS and Pick-Ups',
+  'Forecast Analysis (Forecast Table with All LOS Required)',
   'Back'
 )
 
@@ -35,17 +51,14 @@ topicI<-function(){
   choice<-menu(menuListT1,title='What do you need?')
   switch (choice,
           '1' = {occForecast(); cat("\n");topicI()},
-          '2'=topicSelect()
+          '2'={forecastAnalysis(); cat("\n");topicI()},
+          '3'=topicSelect()
   )
 }
 
 occForecast<-function(){
   # Import the file
-  filex<-file.choose()
-  # Fix newline problem
-  cat("\n", file = filex, append = TRUE)
-  # Read the file as CSV
-  x<-read.csv(file=filex,header = FALSE)
+  x<-fileImport(FALSE)
   # Convert it to data frame
   dfc<-data.frame(x)
   # Find today: get the index of the first NA in the DBA=-1 column
@@ -87,14 +100,14 @@ occForecast<-function(){
       data.frame(
         colMeans(
           splitedOrderedDf[[i]]
-            [,2:length(colnames(splitedOrderedDf[[i]]))] #omit the DOW as it's not numerical
-          )
+          [,2:length(colnames(splitedOrderedDf[[i]]))] #omit the DOW as it's not numerical
+        )
       )
   }
 
   # Give each of the df in the list a name (DOW)
   for (i in 1:length(BCT)) {
-   colnames(BCT[[i]])<-DOW[i]
+    colnames(BCT[[i]])<-DOW[i]
   }
   # Combine, transpose, round all to form an average BCT
   ABCT<-t(data.frame(BCT))
@@ -150,6 +163,31 @@ occForecast<-function(){
   cat('\n')
 }
 
+forecastAnalysis<-function(){
+  # Import the file
+  x<-fileImport(TRUE)
+  # Convert it to data frame
+  df<-data.frame(x)
+  # Get the col name with LOS = 1.xx
+  LOS_1<-grep("LOS1.",colnames(df))
+  # Get the difference between each LOS1.XX => all other LOS
+  DIFF<-diff(LOS_1)
+  # Get the last column no.
+  lastColNo<-which(colnames(df)==colnames(df)[length(colnames(df))])
+  # Get LOS range
+  losRange<-numeric()
+  for (i in 1:length(LOS_1)) {
+   if (!is.na(LOS_1[i+1])) {
+     losRange<-c(losRange,seq(LOS_1[i],LOS_1[i+1]))
+   }else{
+     losRange<-c(losRange,seq(LOS_1[i],lastColNo))
+   }
+  }
+  # Remove duplicates
+  losRange<-unique(losRange[-length(losRange)])
+  # Calculate the rooms occupied for the first row
+  df[,lastColNo][1]<-sum(na.omit(df[,losRange][1,]))
+}
 
 
 # Main Menu Selection Function
