@@ -3,6 +3,22 @@
 library(cli)
 library(dplyr)
 
+# Misc.:
+
+# Split input func
+inpSplit<-function(text){
+  result<- strsplit(readline(prompt=text),",")
+  return(result)
+}
+
+# Convert to integer func
+toInt<-function(list){
+  for (variable in list) {
+    int<-as.numeric(variable)
+    return(int)
+  }
+}
+
 # Welcome message
 welcomeMsg<-'Hi Welcome to the RM Terminal by Aviv'
 cli::cat_boxx(welcomeMsg)
@@ -30,6 +46,12 @@ occForecast<-function(){
   cat("\n", file = filex, append = TRUE)
   # Read the file as CSV
   x<-read.csv(file=filex,header = FALSE)
+  # Convert it to data frame
+  dfc<-data.frame(x)
+  # Find today: get the index of the first NA in the DBA=-1 column
+  todayIndex<-which(is.na(dfc[,4]))[1]
+  # Find the corresponding day in the DOW$date column using the index
+  today<-c(dfc[,2][todayIndex],dfc[,1][todayIndex])
   # Convert it to data frame + remove the date
   df<-data.frame(x[,-1])
   # Extract the DBA
@@ -58,20 +80,8 @@ occForecast<-function(){
     splitedOrderedDf[[i]]<-na.omit(subset(pp,pp$'100' %in% DOW[i]))
   }
 
-  oo<-list()
   # Calculate the col means of each DBA values to create the avg booking curve table
-  for (i in 1:length(splitedOrderedDf)) {
-   oo[[i]] <-as.data.frame(
-     colMeans(
-     data.frame(splitedOrderedDf[i])
-     [,2:length(colnames(data.frame(splitedOrderedDf[i])))]
-     )
-     ,optional = TRUE,
-   )
-  }
-
   BCT<-list()
-  # Calculate the col means of each DBA values to create the avg booking curve table
   for (i in 1:length(splitedOrderedDf)) {
     BCT[[i]] <-
       data.frame(
@@ -86,9 +96,22 @@ occForecast<-function(){
   for (i in 1:length(BCT)) {
    colnames(BCT[[i]])<-DOW[i]
   }
-
-  # Combine, transpose, round all to form a BCT
-  BCTF<-round(t(data.frame(BCT)))
+  # Combine, transpose, round all to form an average BCT
+  ABCT<-t(data.frame(BCT))
+  cli_alert_success('Average Booking Curve Table: ')
+  cat('\n')
+  print(ABCT)
+  cat('\n')
+  #Pickup matrix
+  PPM<-data.frame(round(ABCT[,1]-ABCT))
+  cli_alert_success('Pickup Matrix: ')
+  cat('\n')
+  print(PPM)
+  cat('\n')
+  # Print today
+  print(paste('Today:',today))
+  # Ask for forecast info
+  fDate<-toInt(inpSplit('How many days in advance do you want to forecast: '))
 
 }
 
@@ -111,3 +134,5 @@ topicSelect=function(){
 
 }
 topicSelect()
+
+
