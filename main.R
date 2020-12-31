@@ -35,7 +35,7 @@ topicI<-function(){
   choice<-menu(menuListT1,title='What do you need?')
   switch (choice,
           '1' = {occForecast(); cat("\n");topicI()},
-          '2'={topicI()}
+          '2'=topicSelect()
   )
 }
 
