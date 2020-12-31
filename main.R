@@ -69,15 +69,22 @@ occForecast<-function(){
    )
   }
 
+  oo<-list()
+  # Calculate the col means of each DBA values to create the avg booking curve table
+  for (i in 1:length(splitedOrderedDf)) {
+    oo[[i]] <-
+      colMeans(
+       splitedOrderedDf[[i]]
+        [,2:length(colnames(splitedOrderedDf[[i]]))]
+      )
 
-  colMeans(data.frame(splitedOrderedDf[2])[,2:length(colnames(data.frame(splitedOrderedDf[1])))])
+  }
+
+
+
 
 }
 
-axa<-list()
-for (i in 1:length(DOW)) {
-  axa[[i]]<-subset(pp,pp$'100' %in% DOW[i])
-}
 
 
 # Main Menu Selection Function
