@@ -41,7 +41,7 @@ cli::cat_boxx(welcomeMsg)
 # Main Menu List
 menuListT1<-c(
   'Occupancy Forecast with LOS and Pick-Ups',
-  'Forecast Analysis (Forecast Table with All LOS Required | Change ALL LOS1 to LOS1-X)',
+  'Forecast Analysis (Forecast Table with All LOS Required | Change ALL LOS1 to LOS1-X | Max LOS = 3)',
   'Back'
 )
 
@@ -169,9 +169,6 @@ forecastAnalysis<-function(){
   df<-data.frame(x)
   # Get the col name with LOS = 1.xx
   LOS_1<-grep("LOS1.",colnames(df))
-  # Get the difference between each LOS1.XX => all other LOS
-  DIFF<-diff(LOS_1)
-  DIFF<-DIFF-1
   # Get the last column no.
   lastColNo<-which(colnames(df)==colnames(df)[length(colnames(df))])
   # Get LOS range
@@ -193,14 +190,44 @@ forecastAnalysis<-function(){
   # Fill the room occupied with the sum of each row
   df[,lastColNo][1:length(df[,lastColNo])]<-sumRest
   # Calculate the rooms occupied for the 2nd row
-  ## Get the LOS 2,3...
-  losFilterRowSec<-losRange[!(losRange %in% LOS_1)]
+  ## Get LOS 2,3...
+  losFilterSec<-losRange[!(losRange %in% LOS_1)]
   # Sum of LOS > 1 of the 1st row
-  df[,lastColNo][2]<-sum(df[1,losFilterRowSec])+df[,lastColNo][2]
+  df[,lastColNo][2]<-sum(df[1,losFilterSec])+df[,lastColNo][2]
+
   # Calculate room occupied for the rest
-  df[,lastColNo][3:length(df[,lastColNo])]
+  ## Get the 3rd LOS
+  DIFF<-diff(c(losFilterSec,losFilterSec[length(losFilterSec)]+2))
+  thirdLos<-DIFF[DIFF!=1]
+  # Get the index of them DIFF which corresponds to losFilterSec
+  thirdLosIndex<-which(DIFF %in% thirdLos)
+  # Get LOS3
+  losFilterThird<-losFilterSec[thirdLosIndex]
+  # Sum of LOS3
+  sumLosThird<-numeric()
+  for (i in 1:length(df[,1])) {
+    sumLosThird<-c(sumLosThird,sum(df[,losFilterThird][i,],na.rm = TRUE))
+  }
+  # Length of sumLosThird
+  lLosThird<-length(sumLosThird)
+  lLosThird1<-lLosThird-1
+  # Add them to the existing room occupied
+  df[,lastColNo][3:length(df[,lastColNo])]<-
+    sumLosThird[-lLosThird1:-lLosThird]+ df[,lastColNo][3:length(df[,lastColNo])]
+  # Sum of LOS 2,3
+  sumLosSecThird<-numeric()
+  for (i in 1:length(df[,1])) {
+    sumLosSecThird<-c(sumLosSecThird,sum(df[,losFilterSec][i,],na.rm = TRUE))
+  }
+  # Add them to the existing room occupied
+  lLosSecThird<-length(sumLosThird)
+  df[,lastColNo][3:length(df[,lastColNo])]<-
+    sumLosSecThird[c(-1,-lLosSecThird)]+ df[,lastColNo][3:length(df[,lastColNo])]
 
-
+  cli_alert_success('Forecast Analysis: ')
+  cat('\n')
+  print(df)
+  cat('\n')
 
 }
 
