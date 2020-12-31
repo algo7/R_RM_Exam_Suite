@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 # Load libraries
 library(cli)
+library(dplyr)
 
 # Welcome message
 welcomeMsg<-'Hi Welcome to the RM Terminal by Aviv'
@@ -69,19 +70,25 @@ occForecast<-function(){
    )
   }
 
-  oo<-list()
+  BCT<-list()
   # Calculate the col means of each DBA values to create the avg booking curve table
   for (i in 1:length(splitedOrderedDf)) {
-    oo[[i]] <-
-      colMeans(
-       splitedOrderedDf[[i]]
-        [,2:length(colnames(splitedOrderedDf[[i]]))]
+    BCT[[i]] <-
+      data.frame(
+        colMeans(
+          splitedOrderedDf[[i]]
+            [,2:length(colnames(splitedOrderedDf[[i]]))] #omit the DOW as it's not numerical
+          )
       )
-
   }
 
+  # Give each of the df in the list a name (DOW)
+  for (i in 1:length(BCT)) {
+   colnames(BCT[[i]])<-DOW[i]
+  }
 
-
+  # Combine, transpose, round all to form a BCT
+  BCTF<-round(t(data.frame(BCT)))
 
 }
 
