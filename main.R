@@ -50,7 +50,7 @@ occForecast<-function(){
   dfc<-data.frame(x)
   # Find today: get the index of the first NA in the DBA=-1 column
   todayIndex<-which(is.na(dfc[,4]))[1]
-  # Find the corresponding day in the DOW$date column using the index
+  # Find the corresponding day in the DOW & date column using the index
   today<-c(dfc[,2][todayIndex],dfc[,1][todayIndex])
   # Convert it to data frame + remove the date
   df<-data.frame(x[,-1])
@@ -110,9 +110,44 @@ occForecast<-function(){
   cat('\n')
   # Print today
   print(paste('Today:',today))
-  # Ask for forecast info
+  # Ask for no. of days to forecast
   fDate<-toInt(inpSplit('How many days in advance do you want to forecast: '))
-
+  # Get the forecast index by adding the forecast days to todayIndex
+  forecastIndex<-todayIndex+fDate
+  # Get all the indices in between
+  forecastIndecies<-seq(todayIndex,forecastIndex,by=1)
+  # Forecast info.
+  forecastDOW<-dfc[,2][forecastIndecies]
+  forecastDate<-dfc[,1][forecastIndecies]
+  forecastDBA<-seq(0,fDate,by=1)
+  # ROH
+  forecastLastCol<-length(forecastDBA)+2
+  forecastData<-df[,3:forecastLastCol]
+  ROHIndex<-which(is.na(forecastData))
+  ROHIndex<-ROHIndex[1:7]-1
+  ROH<-numeric()
+  for (i in 1:length(forecastData)) {
+    ROH<-c(ROH,forecastData[i][ROHIndex[i],])
+  }
+  # DF first, otherwise all will be convert to characters
+  forecastTable<-data.frame(cbind(forecastDOW,forecastDate))
+  # Add numerical data
+  forecastTable<-cbind(forecastTable,forecastDBA,ROH)
+  # Pickup values
+  pickupDate<-fDate+2
+  pickupIndex<-seq(1,pickupDate-1)
+  pickupData<-PPM[,2:pickupDate]
+  pickup<-numeric()
+  for (i in 1:length(pickupData)) {
+    pickup<-c(pickup,pickupData[i][pickupIndex[i],])
+  }
+  forecastTable<-cbind(forecastTable,pickup)
+  forecastFinal<-forecastTable[,4]+pickup
+  forecastTable<-cbind(forecastTable,forecastFinal)
+  cli_alert_success('Forecast Table: ')
+  cat('\n')
+  print(forecastTable)
+  cat('\n')
 }
 
 
