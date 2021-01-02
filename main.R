@@ -263,10 +263,20 @@ gr<-function(){
   x<-fileImport(TRUE)
   # Convert it to data frame
   df<-data.frame(x)
+  # Extract the service cost/price
+  serviceDf<-df[5:length(rownames(df)),]
+  # Remove the service cost/price from the main data frame
+  df<-df[-(5:length(rownames(df))),]
   # Set row names
+  rownames(serviceDf)<-serviceDf[,1]
   rownames(df)<-df[,1]
   # Remove the first col, which is used as row names
+  serviceDf<-serviceDf[,-1]
   df<-df[,-1]
+  # Remove NA columns from serviceDf
+  serviceDf<-serviceDf[, colMeans(is.na(serviceDf)) != 1]
+  # Set colnames for service Df
+  colnames(serviceDf)<-c('Price','Cost')
   # Ask for the hotel's capacity
   hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
   # Calculate transient + group
@@ -275,6 +285,9 @@ gr<-function(){
   df['Displaced_Transient',]<-df['FIT_Group',]-hotelCapacity
   # If FI_Group < hotelCapacity => displaced transient = 0
   df['Displaced_Transient',][sign(df['Displaced_Transient',])==-1]<-0
+  # Room demand
+  rdm<-df
+  # Displace contribution
 
 }
 

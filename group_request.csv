@@ -1,6 +1,7 @@
 DOW,Mon,Tue,Wed,Thu,Fri,Sat,Sun
-Constrained_Demand,85,70,100,100,100,44,36
+Constrained_Demand,85,100,100,100,100,44,36
 Room_Group_Demand,,20,20,20,,,
 FIT_Group,,,,,,,
 Displaced_Transient,,,,,,,
+F_B,200,188,,,,,
 
