@@ -297,7 +297,7 @@ gr<-function(){
   rownames(dc)<-rownames(serviceDf)
   # Remove NAs
   dc<-dc[, colMeans(is.na(dc)) != 1]
-  # Calculate the displaced distribution
+  # Calculate the displaced contribution
   dc*serviceDf[,2]*serviceDf[,3]
 }
 
