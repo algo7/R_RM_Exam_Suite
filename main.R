@@ -297,22 +297,46 @@ gr<-function(){
   }
   # Set row names for displaced contribution
   rownames(dc)<-rownames(serviceDf)
-  # Remove group
-  dc<-dc[-grep("G.",rownames(dc)),]
-  # Remove NAs
-  dc<-dc[, colMeans(is.na(dc)) != 1]
-  # Calculate the displaced contribution
-  dc<-dc*serviceDf[grep("T.",rownames(serviceDf)),2]*serviceDf[grep("T.",rownames(serviceDf)),3]
-  # Total displaced contribution
-  tdc<-sum(dc[grep("T.",rownames(dc)),])
+
   # Ancillary contribution
-  rac<-sum(serviceDf[grep("G.",rownames(serviceDf)),'Cost'])*length(colnames(dc))
-  # Ask for the room cost
-  roomCost<-toInt(inpSplit('Ask for room cost:'))
-  # Calculate the minimum rate (MAR)
-  mar<-(tdc-rac)/totalGroupRooms+12
-  # calculate minimum contribution
-  mc<-sum(serviceDf[grep("G.",rownames(serviceDf)),'Price'])*length(colnames(dc))+totalGroupRooms*mar
+  acType<-toInt(inpSplit('Does the group cost differs from date? [1=Y,0=N]:'))
+  if(acType==0){
+    # Remove group
+    dc<-dc[-grep("G.",rownames(dc)),]
+    # Remove NAs
+    dc<-dc[, colMeans(is.na(dc)) != 1]
+    # Calculate the displaced contribution
+    dc<-dc*serviceDf[grep("T.",rownames(serviceDf)),2]*serviceDf[grep("T.",rownames(serviceDf)),3]
+    # Total displaced contribution
+    tdc<-sum(dc[grep("T.",rownames(dc)),])
+    rac<-
+      sum(serviceDf[grep("G.",rownames(serviceDf)),'Cost'])*length(colnames(dc))
+    # Ask for the room cost
+    roomCost<-toInt(inpSplit('Ask for room cost:'))
+    # Calculate the minimum rate (MAR)
+    mar<-(tdc-rac)/totalGroupRooms+12
+    # Calculate minimum contribution
+    mc<-sum(serviceDf[grep("G.",rownames(serviceDf)),'Price'])*length(colnames(dc))+totalGroupRooms*mar
+  }else{
+    # Remove NAs
+    dc<-dc[, colMeans(is.na(dc)) != 1]
+    # Calculate the displaced contribution
+    dc<-dc*serviceDf[,2]*serviceDf[,3]
+    # Total displaced contribution
+    tdc<-sum(dc[grep("T.",rownames(dc)),])
+    # Anc contrib
+    rac<-toInt(inpSplit('Enter the Ancillary Contribution:'))
+    # Ask for the room cost
+    roomCost<-toInt(inpSplit('Ask for room cost:'))
+    # Calculate the minimum rate (MAR)
+    mar<-(tdc-rac)/totalGroupRooms+12
+    # Calculate minimum contribution
+    preMc<-toInt(inpSplit('Enter the Combined Service Price for the Group:'))
+    mc<-preMc+totalGroupRooms*mar
+  }
+
+
+
 
  # Results
   cli_alert_success('Room Demanded: ')
@@ -326,7 +350,6 @@ gr<-function(){
   cat('\n')
   cli_alert_success('Ancillary Contribution: ')
   cat('\n')
-  print(rdm)
   print(paste('Total:',rac))
   cat('\n')
   print(paste('Minimum Rate:',mar))
