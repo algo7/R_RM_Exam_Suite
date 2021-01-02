@@ -276,7 +276,7 @@ gr<-function(){
   # Remove NA columns from serviceDf
   serviceDf<-serviceDf[, colMeans(is.na(serviceDf)) != 1]
   # Set colnames for service Df
-  colnames(serviceDf)<-c('Price','Cost')
+  colnames(serviceDf)<-c('Price','Cost','Client_Percentage')
   # Ask for the hotel's capacity
   hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
   # Calculate transient + group
@@ -288,7 +288,17 @@ gr<-function(){
   # Room demand
   rdm<-df
   # Displace contribution
-
+  dc<-NULL
+  # Copy the displaced transient to the displace contribution data frame
+  for (i in 1:length(rownames(serviceDf))) {
+    dc<-rbind(df['Displaced_Transient',],dc)
+  }
+  # Set row names for displaced contribution
+  rownames(dc)<-rownames(serviceDf)
+  # Remove NAs
+  dc<-dc[, colMeans(is.na(dc)) != 1]
+  # Calculate the displaced distribution
+  dc*serviceDf[,2]*serviceDf[,3]
 }
 
 
