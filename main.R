@@ -40,7 +40,7 @@ cli::cat_boxx(welcomeMsg)
 # Topic 1 (Forecasting)
 # Main Menu List
 menuListT1<-c(
-  'Occupancy Forecast with LOS and Pick-Ups',
+  'Occupancy Forecast with LOS and Pick-Up Matrix',
   'Forecast Analysis (Forecast Table with All LOS Required | Change ALL LOS1 to LOS1-X | Max LOS = 3)',
   'Back'
 )
@@ -242,11 +242,36 @@ forecastAnalysis<-function(){
 
 }
 
+# Topic 2 (Group Request)
+# Main Menu List
+menuListT1<-c(
+  'Group Request',
+  'Back'
+)
+
+# Topic I menu
+topicI<-function(){
+  choice<-menu(menuListT1,title='What do you need?')
+  switch (choice,
+          '1' = {gr(); cat("\n");topicI()},
+          '2'=topicSelect()
+  )
+}
+
+gr<-function(){
+  # Import the file
+  x<-fileImport(FALSE)
+  # Convert it to data frame
+  dfc<-data.frame(x)
+
+}
+
 
 # Main Menu Selection Function
 topicSelect=function(){
   menuList<-c(
-    'Forecasting'
+    'Forecasting',
+    'Group Request'
   );
 
   choice<-menu(menuList, title='Please Select A Topic:');
@@ -254,6 +279,7 @@ topicSelect=function(){
   mSelect<-function(topic){
     switch (topic,
             '1' = topicI(),
+            '2' = topicII(),
     )
   };
   mSelect(choice);
