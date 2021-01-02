@@ -26,5 +26,4 @@ vignettes/*.pdf
 *.knit.md
 # R Environment Variables
 .Renviron
-.~lock.forecast.csv#
-.~lock.forecast_analysis.csv#
+.~lock.*

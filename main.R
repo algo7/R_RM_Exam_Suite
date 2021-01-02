@@ -244,14 +244,14 @@ forecastAnalysis<-function(){
 
 # Topic 2 (Group Request)
 # Main Menu List
-menuListT1<-c(
+menuListT2<-c(
   'Group Request',
   'Back'
 )
 
 # Topic I menu
 topicI<-function(){
-  choice<-menu(menuListT1,title='What do you need?')
+  choice<-menu(menuListT2,title='What do you need?')
   switch (choice,
           '1' = {gr(); cat("\n");topicI()},
           '2'=topicSelect()
@@ -260,9 +260,21 @@ topicI<-function(){
 
 gr<-function(){
   # Import the file
-  x<-fileImport(FALSE)
+  x<-fileImport(TRUE)
   # Convert it to data frame
-  dfc<-data.frame(x)
+  df<-data.frame(x)
+  # Set row names
+  rownames(df)<-df[,1]
+  # Remove the first col, which is used as row names
+  df<-df[,-1]
+  # Ask for the hotel's capacity
+  hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
+  # Calculate transient + group
+  df['FIT_Group',] <- df['Constrained_Demand',]+df['Room_Group_Demand',]
+  # Calculate the displaced transient
+  df['Displaced_Transient',]<-df['FIT_Group',]-hotelCapacity
+  # If FI_Group < hotelCapacity => displaced transient = 0
+  df['Displaced_Transient',][sign(df['Displaced_Transient',])==-1]<-0
 
 }
 
