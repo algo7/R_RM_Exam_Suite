@@ -249,11 +249,11 @@ menuListT2<-c(
   'Back'
 )
 
-# Topic I menu
-topicI<-function(){
+# Topic II menu
+topicII<-function(){
   choice<-menu(menuListT2,title='What do you need?')
   switch (choice,
-          '1' = {gr(); cat("\n");topicI()},
+          '1' = {gr(); cat("\n");topicII()},
           '2'=topicSelect()
   )
 }
@@ -287,6 +287,8 @@ gr<-function(){
   df['Displaced_Transient',][sign(df['Displaced_Transient',])==-1]<-0
   # Room demand
   rdm<-df
+  # Total
+  totalGroupRooms<-sum(rdm['Room_Group_Demand',],na.rm = TRUE)
   # Displace contribution
   dc<-NULL
   # Copy the displaced transient to the displace contribution data frame
@@ -295,10 +297,43 @@ gr<-function(){
   }
   # Set row names for displaced contribution
   rownames(dc)<-rownames(serviceDf)
+  # Remove group
+  dc<-dc[-grep("G.",rownames(dc)),]
   # Remove NAs
   dc<-dc[, colMeans(is.na(dc)) != 1]
   # Calculate the displaced contribution
-  dc*serviceDf[,2]*serviceDf[,3]
+  dc<-dc*serviceDf[grep("T.",rownames(serviceDf)),2]*serviceDf[grep("T.",rownames(serviceDf)),3]
+  # Total displaced contribution
+  tdc<-sum(dc[grep("T.",rownames(dc)),])
+  # Ancillary contribution
+  rac<-sum(serviceDf[grep("G.",rownames(serviceDf)),'Cost'])*length(colnames(dc))
+  # Ask for the room cost
+  roomCost<-toInt(inpSplit('Ask for room cost:'))
+  # Calculate the minimum rate (MAR)
+  mar<-(tdc-rac)/totalGroupRooms+12
+  # calculate minimum contribution
+  mc<-sum(serviceDf[grep("G.",rownames(serviceDf)),'Price'])*length(colnames(dc))+totalGroupRooms*mar
+
+ # Results
+  cli_alert_success('Room Demanded: ')
+  cat('\n')
+  print(rdm)
+  cat('\n')
+  cli_alert_success('Displaced Contribution: ')
+  cat('\n')
+  print(dc)
+  print(paste('Total:',tdc))
+  cat('\n')
+  cli_alert_success('Ancillary Contribution: ')
+  cat('\n')
+  print(rdm)
+  print(paste('Total:',rac))
+  cat('\n')
+  print(paste('Minimum Rate:',mar))
+  cat('\n')
+  print(paste('Minimum Contribution:',mc))
+
+
 }
 
 
