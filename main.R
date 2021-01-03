@@ -3,6 +3,9 @@
 library(cli)
 library(dplyr)
 library(stringr)
+library(lpSolve)
+library(boot)
+
 
 # Misc.:
 
@@ -359,12 +362,73 @@ gr<-function(){
 
 }
 
+# Topic 3 (Linear Programming)
+# Main Menu List
+menuListT2<-c(
+  'Linear Programming',
+  'Back'
+)
+
+# Topic II menu
+topicIII<-function(){
+  choice<-menu(menuListT2,title='What do you need?')
+  switch (choice,
+          '1' = {lp(); cat("\n");topicIII()},
+          '2'=topicSelect()
+  )
+}
+
+lpf<-function(){
+  # Import the file
+  x<-fileImport(FALSE)
+  # Convert it to data frame
+  df<-data.frame(x,row.names = 1)
+  roomAvailable<-na.omit(data.frame(df[,length(colnames(df))]))
+  df<-df[,-length(colnames(df))]
+  dfo<-df
+  # Rooms occupied
+  ## Replaced the the data frame with ones
+  df[3:9,]<-1
+  # Sum of each row
+  sumRows<-data.frame(apply(df, 1, sum))
+  sumRows<-sumRows[-(1:2),,drop = FALSE]
+  # Colmuns where LOS != 1
+  losNotOne<-df[,which(df['LOS',]!=1)]
+  losNotOne<-data.frame(apply(losNotOne, 1, sum))
+  losNotOne<-losNotOne[-(1:2),,drop = FALSE]
+  # Dataframe of DOW except for Mon along with LOS!=1
+  pre<-cbind(losNotOne,sumRows)[2:length(rownames(cbind(losNotOne,sumRows))),]
+  # Rooms occupied
+  roomOccupied<-rbind(sumRows[1,],data.frame(apply(pre,1,sum)))
+  colnames(roomOccupied)<-'RoomsOccupied'
+  rownames(roomOccupied)[1]<-'Monday'
+  # Calculate the revenue
+  dfc<-df # Make a copy of the original df
+  for (i in 3:length(rownames(dfc))) {
+   dfc[i,]<-dfc[i,]*df[1,]*dfc[2,]
+  }
+  rev<-data.frame(apply(dfc[3:9,], 1, sum))
+  colnames(rev)<-'Revenue'
+  revSum<- sum(rev)
+
+  # Room Occupied <= Room Available
+  # pick-ups to be optimized <= unconstrained pick-up
+  unconPikcup<-as.vector(unlist(dfo[3:9,])) # Unconstrained pick-up
+  optPickup<-as.vector(unlist(df[3:9,])) # pick-ups to be optimized
+  ra<-as.vector(unlist(roomAvailable))
+  ro<-as.vector(unlist(roomOccupied))
+  lp('max',revSum,as.vector(cbind(optPickup,ro)),'<=',as.vector(cbind(unconPikcup,ra)),all.int=TRUE)
+
+
+}
+
 
 # Main Menu Selection Function
 topicSelect=function(){
   menuList<-c(
     'Forecasting',
-    'Group Request'
+    'Group Request',
+    'Linear Programming'
   );
 
   choice<-menu(menuList, title='Please Select A Topic:');
@@ -373,6 +437,7 @@ topicSelect=function(){
     switch (topic,
             '1' = topicI(),
             '2' = topicII(),
+            '3' = topicIII(),
     )
   };
   mSelect(choice);
