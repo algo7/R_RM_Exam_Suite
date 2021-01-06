@@ -36,6 +36,14 @@ toInt<-function(list){
   }
 }
 
+# Convert to character func
+toCha<-function(list){
+  for (variable in list) {
+    int<-as.character(variable)
+    return(int)
+  }
+}
+
 # Welcome message
 welcomeMsg<-'Hi Welcome to the RM Terminal by Aviv'
 cli::cat_boxx(welcomeMsg)
@@ -428,6 +436,11 @@ lpf<-function(){
 # Excel solver is not allowed during the exams
 # So there will only be basic questions in terms of LP
 lpExam()<-function(){
+
+  f.obj<-toInt(inpSplit('Enter the coefficient of the Objective Function in CSV, e.g.(1,2,3):'))
+  f.con <-toInt(inpSplit('Enter the coefficient of the Constrains in CSV, e.g.(1,2,3):'))
+  f.dir<-toCha(inpSplit('Enter the direction in CSV, e.g.(=,<,<=):'))
+
 
 }
 
