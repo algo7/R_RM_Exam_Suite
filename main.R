@@ -373,7 +373,8 @@ menuListT2<-c(
 topicIII<-function(){
   choice<-menu(menuListT2,title='What do you need?')
   switch (choice,
-          '1' = {lp(); cat("\n");topicIII()},
+          '1' = {lpf(); cat('\n');topicIII()},
+          '2' = {lpExam(); cat('\n');topicIII()},
           '2'=topicSelect()
   )
 }
@@ -421,6 +422,12 @@ lpf<-function(){
 
   lp('max',as.vector(rev),as.vector(cbind(optPickup,ro)),'<=',as.vector(cbind(unconPikcup,ra)),all.int=TRUE)
 
+
+}
+
+# Excel solver is not allowed during the exams
+# So there will only be basic questions in terms of LP
+lpExam()<-function(){
 
 }
 
