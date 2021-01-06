@@ -21,7 +21,6 @@ fileImport<-function(header){
   return (x)
 }
 
-
 # Split input func
 inpSplit<-function(text){
   result<- strsplit(readline(prompt=text),",")
@@ -484,6 +483,36 @@ topicIV<-function(){
 }
 
 ob<-function(){
+  # Import the file
+  x<-fileImport(FALSE)
+  # Convert it to data frame
+  df<-data.frame(x,row.names = 1)
+  # Ask for the hotel's capacity
+  hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
+  # Ask for the var. cost for the room
+  varCost<-toInt(inpSplit('The Variable Cost of the Room: '))
+  # Update the df
+  df['Variable-costs',]<-varCost
+  # Calculate the goodwill
+  ## Whether to calculate the goodwill (the row can be pre-populated in the csv as well)
+  gwCal<-toInt(inpSplit('Do you need to calculate the goodwill (1=Yes,0=No) '))
+  if(gwCal==1){
+    gwFactor<-toInt(inpSplit('The Goodwill Factor, e.g.(2,3 [times the room price]): '))
+    df['Goodwill',]<-df['Rates',]*gwFactor
+  }
+  # Calculate the re-accommodation cost
+  ## Whether to calculate re-accommodation cost (the row can be pre-populated in the csv as well)
+  rcCal<-toInt(inpSplit('Do you need to calculate the re-accommodation cost (1=Yes,0=No) '))
+  if(rcCal==1){
+    rcFactor<-toInt(inpSplit('The Re-accommodation Cost Factor e.g.(2,3,0.8, times the room rate), '))
+    df['Re-accomodation',]<-df['Rates',]*rcFactor
+  }
+  # Calculate the cost of walk
+  df['Cost-of-walk',]<-df['Re-accomodation',]+df['Goodwill',]
+  # Calculate the cost of an empty room
+  df['Empty-room',]<-df['Rates',]-df['Variable-costs',]
+  # Calculate the critical fractile
+  df['Critical-Fractile',]<-df['Cost-of-walk',]/(df['Cost-of-walk',]+df['Empty-room',])
 
 }
 
