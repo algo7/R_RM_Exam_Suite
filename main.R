@@ -417,7 +417,9 @@ lpf<-function(){
   optPickup<-as.vector(unlist(df[3:9,])) # pick-ups to be optimized
   ra<-as.vector(unlist(roomAvailable))
   ro<-as.vector(unlist(roomOccupied))
-  lp('max',revSum,as.vector(cbind(optPickup,ro)),'<=',as.vector(cbind(unconPikcup,ra)),all.int=TRUE)
+  # diag martrix optPickup & unconPickup
+
+  lp('max',as.vector(rev),as.vector(cbind(optPickup,ro)),'<=',as.vector(cbind(unconPikcup,ra)),all.int=TRUE)
 
 
 }
