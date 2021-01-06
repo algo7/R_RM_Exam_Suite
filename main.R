@@ -372,18 +372,19 @@ gr<-function(){
 
 # Topic 3 (Linear Programming)
 # Main Menu List
-menuListT2<-c(
+menuListT3<-c(
   'Linear Programming',
+  'LP Exam',
   'Back'
 )
 
-# Topic II menu
+# Topic III menu
 topicIII<-function(){
-  choice<-menu(menuListT2,title='What do you need?')
+  choice<-menu(menuListT3,title='What do you need?')
   switch (choice,
           '1' = {lpf(); cat('\n');topicIII()},
           '2' = {lpExam(); cat('\n');topicIII()},
-          '2'=topicSelect()
+          '3'=topicSelect()
   )
 }
 
@@ -435,12 +436,54 @@ lpf<-function(){
 
 # Excel solver is not allowed during the exams
 # So there will only be basic questions in terms of LP
-lpExam()<-function(){
+lpExam<-function(){
 
-  f.obj<-toInt(inpSplit('Enter the coefficient of the Objective Function in CSV, e.g.(1,2,3):'))
-  f.con <-toInt(inpSplit('Enter the coefficient of the Constrains in CSV, e.g.(1,2,3):'))
-  f.dir<-toCha(inpSplit('Enter the direction in CSV, e.g.(=,<,<=):'))
+  f.obj<-toInt(inpSplit('Enter the Coefficient of the Objective Function in CSV, e.g.(1,2,3):'))
+  f.con.no<-toInt(inpSplit('Enter the Number of Constraints:'))
+  f.con.pre<-toInt(inpSplit('Enter the Coefficient of the Constraints in CSV, e.g.(1,2,3):'))
+  f.dir<-toCha(inpSplit('Enter the Direction in CSV, e.g.(=,<,<=):'))
+  f.rhs<-toInt(inpSplit('Enter the Value on the Righthand Side of the Constraints:'))
+  opType<-toInt(inpSplit('Enter the direction:, 1=Max, 0=Min:'))
+  f.con <- matrix(c(f.con.pre), nrow = f.con.no,byrow = TRUE)
+  res<-NULL
+  if(opType==0){
+    res<-lp('min',f.obj,f.con,f.dir,f.rhs,compute.sens = TRUE)
+    opVal<-res$objval
+    sol<-res$solution
+    res<-paste('Optimized Value:',opVal,'Solutions:',sol)
+  }else if(opType==1){
+    res<-lp('max',f.obj,f.con,f.dir,f.rhs,compute.sens = TRUE)
+    opVal<-res$objval
+    sol<-res$solution
+  }
 
+  print(paste('The Optimized Value:',opVal))
+  print('The Solutions:')
+  print(sol)
+  print(res$duals)
+
+
+
+}
+
+
+# Topic 4 (Overbooking)
+# Main Menu List
+menuListT4<-c(
+  'Overbooking',
+  'Back'
+)
+
+# Topic IV menu
+topicIV<-function(){
+  choice<-menu(menuListT4,title='What do you need?')
+  switch (choice,
+          '1' = {ob(); cat('\n');topicIV()},
+          '2'=topicSelect()
+  )
+}
+
+ob<-function(){
 
 }
 
@@ -450,7 +493,8 @@ topicSelect=function(){
   menuList<-c(
     'Forecasting',
     'Group Request',
-    'Linear Programming'
+    'Linear Programming',
+    'Overbooking'
   );
 
   choice<-menu(menuList, title='Please Select A Topic:');
@@ -460,11 +504,10 @@ topicSelect=function(){
             '1' = topicI(),
             '2' = topicII(),
             '3' = topicIII(),
+            '4' = topicIV()
     )
   };
   mSelect(choice);
 
 }
 topicSelect()
-
-
