@@ -513,6 +513,20 @@ ob<-function(){
   df['Empty-room',]<-df['Rates',]-df['Variable-costs',]
   # Calculate the critical fractile
   df['Critical-Fractile',]<-df['Cost-of-walk',]/(df['Cost-of-walk',]+df['Empty-room',])
+  # Calculate the now-show table
+  # Import the file
+  y<-fileImport(TRUE)
+  # Convert it to data frame
+  df.1<-data.frame(y)
+  # Calculate the col. sums and add update the df
+  df.1<-rbind(df.1,colSums(df.1))
+  # Split the df into dfs for different rates
+  noShowTables<-list()
+  for (i in 1:length(df.1)) {
+    noShowTables[[i]] <-data.frame(df.1[1])
+  }
+
+
 
 }
 
