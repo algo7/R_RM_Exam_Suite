@@ -487,7 +487,7 @@ menuListT4<-c(
   'Overbooking (Economic Model)',
   'Overbooking (Service Model) | 1 guest out of xxx guests',
   'EMRR',
-  'EMRR (Exam)',
+  'EMRR (Exam | Must be optimized first)',
   'Back'
 )
 
@@ -713,6 +713,56 @@ emrrEx<-function(){
   df<-data.frame(x,row.names = 1)
   # Ask for the hotel's capacity
   hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
+  # The min. allocation & booking limit matrix
+  maBl<-matrix(NA, nrow=3, ncol=length(df))
+  # Convert it to df
+  maBl<-data.frame(maBl)
+  # Assign row names
+  rownames(maBl)<-c('Min.Allocation','Booking.Limit','Rates')
+  # Get the rates
+  rates<-df['Rates',]
+  df<-df[-1,-length(df)]
+  # Populate the min. alloc.
+  # Assign the last val for min. alloc.
+  maBl['Min.Allocation',][length(maBl)]<-df['Rounded.NPL',][1]
+  # Assign the rest
+  tempVal<-list()
+  for (i in 1:length(rev(df))) {
+    # Prevent out of range selection
+    if(i+1<=length(rev(df))){
+      tempVal<-c(tempVal,rev(df)['Rounded.NPL',][i]-rev(df)['Rounded.NPL',][i+1])
+    }
+  }
+  maBl['Min.Allocation',][2:(length(maBl)-1)]<-unlist(tempVal)
+  # Populate the booking lim.
+  # Assign the last val for booking lim.
+  maBl['Booking.Limit',][length(maBl)]<-hotelCapacity
+  # Reverse maBl for easier cal.
+  revMaBl<-rev(maBl)
+  # Assign the rest
+  for (i in 1:length(maBl)) {
+    # Prevent out of range selection
+    if(i+1<=length(maBl)){
+      revMaBl['Booking.Limit',][i+1]<- revMaBl['Booking.Limit',][i]-revMaBl['Min.Allocation',][i]
+    }
+  }
+  # Reverse the revMaBl back to maBl
+  maBl<-rev(revMaBl)
+  maBl['Rates',]<-rates
+  # Revenue for a sell out date
+  lowestRateRev<-maBl['Rates',][1]*maBl['Booking.Limit',][1]
+  restRevSum<-sum(maBl['Min.Allocation',][-1]*maBl['Rates',][-1])
+  totalRev<-sum(restRevSum+lowestRateRev)
+  # RevPar for a sell out date
+  revPar<-totalRev/hotelCapacity
+
+  # Print the result
+  cli_alert_success('The Results: ')
+  cat('\n')
+  print(paste('Revenue for a Sell Out Date:',totalRev))
+  cat('\n')
+  cat('\n')
+  print(paste('RevPAR for a Sell Out Date:',revPar))
 
 }
 
