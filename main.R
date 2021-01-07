@@ -7,6 +7,7 @@ library(lpSolve)
 library(boot)
 
 
+
 # Misc.:
 
 # File import func
@@ -536,14 +537,58 @@ ob<-function(){
     for (i in 2:length(noShowTable[,1])) {
       noShowTable[,3][i]<-round(noShowTable[,3][i-1]-noShowTable[,2][i-1],3)
     }
+  # Remove the last row, which is the sum
     return(noShowTable[-length(rownames(noShowTable)),])
   }
-
+  # Turn scientific notation to normal val. and convert the df to numerical func
   for (i in 1:length(noShowTables)) {
-    noShowTables[[i]]<-format(noShowMoreThanCal(noShowTables[[i]]),scientific = FALSE)
+    noShowTables[[i]]<-data.frame(lapply(format(noShowMoreThanCal(noShowTables[[i]]),scientific = FALSE),as.numeric))
   }
+  # Calculate the lookup column
+  for (i in 1:length(noShowTables)) {
+    noShowTables[[i]]<-cbind(noShowTables[[i]],Lookup=1-noShowTables[[i]][,3])
+  }
+  # Perform excel lookup and find the no. overbooked rooms
+  lookupVals<-unlist( 1-df['Critical-Fractile',])
+  # Function to get the value that's smaller or equal to and closest to the input val
+  lookUp<-function(val,toCompare){
+    res<-val-toCompare
+    # When overbook no. is 0
+    if(length(res)==0){
+      return(NA)
+    }else{
+      # Return the position of val. that has the smallest diff from the val
+      return(which(res==min(res)))
+    }
 
-
+  }
+  # The loop which will apply the function (might be able to be converted to using lappy)
+  lookedUpVals<-list()
+  for (i in 1:length(lookupVals)) {
+    # Filter for non-zero vals.
+    nonZero<-noShowTables[[i]][,4]!=0
+    # Filter for <= 1-critical fractile vals.
+    smallerThan<-noShowTables[[i]][,4][noShowTables[[i]][,4]!=0]<=lookupVals[i]
+    # Results that's non-zero and is smaller or equal to 1 - critical fractile vals.
+    temp<-noShowTables[[i]][,4][nonZero][smallerThan]
+    # The looked up values
+    lookedUpVals<-c(lookedUpVals,temp[lookUp(lookupVals[i],temp)])
+  }
+  # Find the actual overbook no.
+  overbookedNo<-list()
+  for (i in 1:length(noShowTables)) {
+    # Filter for matched vals.
+    matched<-which(noShowTables[[i]][,4]==lookedUpVals[[i]])-1
+    if(length(matched)==0){
+      matched<-0
+    }
+    overbookedNo<-c(overbookedNo,matched)
+  }
+  # Convert the overbooked no. to df
+  overbookedNo<-data.frame(overbookedNo)
+  # Assign the col. & row names
+  colnames(overbookedNo)<-colnames(df.1)
+  rownames(overbookedNo)<-'Overbook'
 
 }
 
