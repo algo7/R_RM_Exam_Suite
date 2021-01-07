@@ -487,6 +487,7 @@ menuListT4<-c(
   'Overbooking (Economic Model)',
   'Overbooking (Service Model) | 1 guest out of xxx guests',
   'EMRR',
+  'EMRR (Exam)',
   'Back'
 )
 
@@ -497,7 +498,8 @@ topicIV<-function(){
           '1' = {obe(); cat('\n');topicIV()},
           '2' = {obs(); cat('\n');topicIV()},
           '3' = {emrr(); cat('\n');topicIV()},
-          '4'=topicSelect()
+          '4' = {emrrEx(); cat('\n');topicIV()},
+          '5'=topicSelect()
   )
 }
 
@@ -680,7 +682,33 @@ ons<-function(){
 
 emrr<-function(){
   # Import the file
-  x<-fileImport(TRUE)
+  x<-fileImport(FALSE)
+  # Convert it to data frame
+  df<-data.frame(x,row.names = 1)
+  # Ask for the hotel's capacity
+  hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
+  # The optimization matrix
+  opMat<-matrix(NA, nrow=5, ncol=length(df)-1)
+  # Convert it to df
+  opDf<-data.frame(opMat)
+  # Assign row names
+  rownames(opDf)<-c('Nested.Protection.Level','EMRR.Sup','EMRR.Inf','Diff','Rounded.NPL')
+  # Populate nested protection lv.
+  lAvgUnD<-length(df['Average.unconstrained.demand',])
+  npl<-rev(df['Average.unconstrained.demand',][(lAvgUnD-2):lAvgUnD])
+  opDf['Nested.Protection.Level',]<-npl
+  # Populate EMRR superior
+  lDf<-length(df)
+  revDf<-rev(df[,(lDf-2):lDf])
+  uNpl<-unlist(opDf['Nested.Protection.Level',])
+  uAvgUnD<-unlist(revDf['Average.unconstrained.demand',])
+  uStdev<-unlist(revDf['Standard.deviation',])
+  opDf['EMRR.Sup',]<-revDf['Rate',]*(1-pnorm(uNpl,uAvgUnD,uStdev))
+}
+
+emrrEx<-function(){
+  # Import the file
+  x<-fileImport(FALSE)
   # Convert it to data frame
   df<-data.frame(x,row.names = 1)
   # Ask for the hotel's capacity

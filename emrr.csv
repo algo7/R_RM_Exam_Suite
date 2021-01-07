@@ -1,3 +1,4 @@
-Rate_class,80,110,130,160
-Average_unconstrained_demand,53,48,30,13
-Standard_deviation,15,10,8,3
+Rates,80,110,130,160
+Average.unconstrained.demand,53,48,30,13
+Standard.deviation,15,10,8,3
+
