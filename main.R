@@ -523,7 +523,24 @@ ob<-function(){
   # Split the df into dfs for different rates
   noShowTables<-list()
   for (i in 1:length(df.1)) {
-    noShowTables[[i]] <-data.frame(df.1[1])
+    noShowTables[[i]] <-data.frame(df.1[i])
+  }
+  # Calculate the percentage of exact no-shows val.
+  for (i in 1:length(noShowTables)) {
+    noShowTables[[i]] <-cbind(noShowTables[[i]],Exact=c(noShowTables[[i]][,1]/noShowTables[[i]][,1][length(noShowTables[[i]][,1])]),moreThan=1)
+    noShowTables[[i]][,3]<-c(1,rep.int(NA,length(noShowTables[[i]][,3])-1))
+  }
+
+  # Calculate the percentage of more than no-shows val.
+  noShowMoreThanCal<-function(noShowTable){
+    for (i in 2:length(noShowTable[,1])) {
+      noShowTable[,3][i]<-noShowTable[,3][i-1]-noShowTable[,2][i-1]
+    }
+    return(noShowTable)
+  }
+
+  for (i in 1:length(noShowTables)) {
+    noShowTables[[i]]<-noShowMoreThanCal(noShowTables[[i]])
   }
 
 
