@@ -471,7 +471,7 @@ lpExam<-function(){
 # Main Menu List
 menuListT4<-c(
   'Overbooking (Economic Model)',
-  'Overbooking (Service Model)',
+  'Overbooking (Service Model) | 1 guest out of xxx guests',
   'Back'
 )
 
@@ -600,6 +600,38 @@ obe<-function(){
 }
 
 ons<-function(){
+  # Import the file
+  x<-fileImport(TRUE)
+  # Convert it to data frame
+  df<-data.frame(x,row.names = 1)
+  # Ask for the hotel's capacity
+  hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
+  # Calculate the no-show percentage
+  df[,'Percentage.No.Shows']<-df[,'Average.No.Shows']/df[,'Average.Arrivals']
+  # Import the 2nd file
+  y<-fileImport(TRUE)
+  # Convert it to data frame
+  df.1<-data.frame(y,row.names = 1)
+  # Ask for the acceptable risks (1 out of xxx guests)
+  acceptableRisk<-toInt(inpSplit('Acceptable Risk e.g.(1 out of 300) | Format:1,300: '))
+  # Calculate the acceptable risk
+  acceptableRisk<-acceptableRisk[1]/acceptableRisk[2]
+  df.1[,'Acceptable.Risk']<-acceptableRisk
+  # Populate the no. of no-shows in df.1 from df
+  for (i in 1:length(df.1[,'DOW'])) {
+    tempPercentageNoShows<-df[,'Percentage.No.Shows'][which(df[,'DOW']==df.1[,'DOW'][i])]
+      df.1[,'Percentage.No.Shows'][i]<-tempPercentageNoShows
+  }
+  # Calculate the binomial distribution table
+  maxNoShow<-max(df[,'Average.No.Shows'])
+  # Generate the col. names for the bi Table
+  biTableColNames<-seq(0,maxNoShow,1)
+  biTableMatrix<-matrix(NA, nrow=length(rownames(df.1)), ncol=length(biTableColNames))
+  # Create a data frame for the binomial distro. table
+  biTable<-data.frame(biTableMatrix)
+  colnames(biTable)<-biTableColNames
+  rownames(biTable)<-rownames(df.1)
+  pbinom(biTableColNames[1],df.1[,'Arrivals.Forecast'][1],df.1[,'Percentage.No.Shows'][1],lower.tail = TRUE)
 
 }
 
