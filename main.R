@@ -44,6 +44,20 @@ toCha<-function(list){
   }
 }
 
+# Custom lookup func(same as excel lookup)
+# Get the value that's smaller or equal to and closest to the input val
+lookUp<-function(val,toCompare){
+  res<-val-toCompare
+  # When overbook no. is 0
+  if(length(res)==0){
+    return(NA)
+  }else{
+    # Return the position of val. that has the smallest diff from the val
+    return(which(res==min(res)))
+  }
+
+}
+
 # Welcome message
 welcomeMsg<-'Hi Welcome to the RM Terminal by Aviv'
 cli::cat_boxx(welcomeMsg)
@@ -552,18 +566,6 @@ obe<-function(){
   }
   # Perform excel lookup and find the no. overbooked rooms
   lookupVals<-unlist( 1-df['Critical-Fractile',])
-  # Function to get the value that's smaller or equal to and closest to the input val
-  lookUp<-function(val,toCompare){
-    res<-val-toCompare
-    # When overbook no. is 0
-    if(length(res)==0){
-      return(NA)
-    }else{
-      # Return the position of val. that has the smallest diff from the val
-      return(which(res==min(res)))
-    }
-
-  }
   # The loop which will apply the function (might be able to be converted to using lappy)
   lookedUpVals<-list()
   for (i in 1:length(lookupVals)) {
@@ -591,7 +593,7 @@ obe<-function(){
   # Assign the col. & row names
   colnames(overbookedNo)<-colnames(df.1)
   rownames(overbookedNo)<-'Overbook'
-
+  # Print the result
   cli_alert_success('Overbook Number: ')
   cat('\n')
   print(overbookedNo)
@@ -639,7 +641,38 @@ ons<-function(){
            lower.tail = TRUE)
   }
 
+  lookupVal<-acceptableRisk
+  lookedUpVals<-list()
+  for (i in 1:length(biTable[,1])) {
+    # Filter for matched va.
+    matched<-biTable[i,]<=lookupVal
+    lookedUpVals<-c(lookedUpVals,lookUp(lookupVal,biTable[i,][matched]))
+  }
 
+  # Find the actual overbook no.
+  overbookedNo<-list()
+  for (i in 1:length(biTable[,1])) {
+
+    if(is.na(lookedUpVals[[i]])){
+      overbookedNo<-c(overbookedNo,NA)
+    }else{
+      overbookedNo<-c(overbookedNo,colnames(biTable[i,][lookedUpVals[[i]]]))
+    }
+
+
+
+  }
+
+  # Convert the overbooked no. to df
+  overbookedNo<-data.frame(overbookedNo)
+  # Assign the col. & row names
+  colnames(overbookedNo)<-rownames(df.1)
+  rownames(overbookedNo)<-'Overbook'
+  # Print the result
+  cli_alert_success('Overbook Number: ')
+  cat('\n')
+  print(t(overbookedNo))
+  cat('\n')
 
 }
 
