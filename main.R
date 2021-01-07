@@ -388,7 +388,7 @@ gr<-function(){
 # Main Menu List
 menuListT3<-c(
   'Linear Programming',
-  'LP Exam',
+  'LP_Exam',
   'Back'
 )
 
