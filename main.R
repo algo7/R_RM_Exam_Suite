@@ -457,12 +457,12 @@ lpExam<-function(){
     sol<-res$solution
   }
 
+  cli_alert_success('Results: ')
+  cat('\n')
   print(paste('The Optimized Value:',opVal))
   print('The Solutions:')
   print(sol)
   print(res$duals)
-
-
 
 }
 
@@ -470,7 +470,8 @@ lpExam<-function(){
 # Topic 4 (Overbooking)
 # Main Menu List
 menuListT4<-c(
-  'Overbooking',
+  'Overbooking (Economic Model)',
+  'Overbooking (Service Model)',
   'Back'
 )
 
@@ -478,12 +479,13 @@ menuListT4<-c(
 topicIV<-function(){
   choice<-menu(menuListT4,title='What do you need?')
   switch (choice,
-          '1' = {ob(); cat('\n');topicIV()},
-          '2'=topicSelect()
+          '1' = {obe(); cat('\n');topicIV()},
+          '2' = {obs(); cat('\n');topicIV()},
+          '3'=topicSelect()
   )
 }
 
-ob<-function(){
+obe<-function(){
   # Import the file
   x<-fileImport(FALSE)
   # Convert it to data frame
@@ -589,6 +591,15 @@ ob<-function(){
   # Assign the col. & row names
   colnames(overbookedNo)<-colnames(df.1)
   rownames(overbookedNo)<-'Overbook'
+
+  cli_alert_success('Overbook Number: ')
+  cat('\n')
+  print(overbookedNo)
+  cat('\n')
+
+}
+
+ons<-function(){
 
 }
 
