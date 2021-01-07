@@ -631,7 +631,15 @@ ons<-function(){
   biTable<-data.frame(biTableMatrix)
   colnames(biTable)<-biTableColNames
   rownames(biTable)<-rownames(df.1)
-  pbinom(biTableColNames[1],df.1[,'Arrivals.Forecast'][1],df.1[,'Percentage.No.Shows'][1],lower.tail = TRUE)
+  # P(NS<=x) & Populate the binomial distro. table
+  for (i in 1:length(biTable)) {
+    biTable[,i]<-pbinom(biTableColNames[i],
+           df.1[,'Arrivals.Forecast'],
+           df.1[,'Percentage.No.Shows'],
+           lower.tail = TRUE)
+  }
+
+
 
 }
 
