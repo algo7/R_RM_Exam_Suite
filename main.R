@@ -534,13 +534,13 @@ ob<-function(){
   # Calculate the percentage of more than no-shows val.
   noShowMoreThanCal<-function(noShowTable){
     for (i in 2:length(noShowTable[,1])) {
-      noShowTable[,3][i]<-noShowTable[,3][i-1]-noShowTable[,2][i-1]
+      noShowTable[,3][i]<-round(noShowTable[,3][i-1]-noShowTable[,2][i-1],3)
     }
-    return(noShowTable)
+    return(noShowTable[-length(rownames(noShowTable)),])
   }
 
   for (i in 1:length(noShowTables)) {
-    noShowTables[[i]]<-noShowMoreThanCal(noShowTables[[i]])
+    noShowTables[[i]]<-format(noShowMoreThanCal(noShowTables[[i]]),scientific = FALSE)
   }
 
 
