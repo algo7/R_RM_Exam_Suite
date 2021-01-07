@@ -486,6 +486,7 @@ lpExam<-function(){
 menuListT4<-c(
   'Overbooking (Economic Model)',
   'Overbooking (Service Model) | 1 guest out of xxx guests',
+  'EMRR',
   'Back'
 )
 
@@ -495,7 +496,8 @@ topicIV<-function(){
   switch (choice,
           '1' = {obe(); cat('\n');topicIV()},
           '2' = {obs(); cat('\n');topicIV()},
-          '3'=topicSelect()
+          '3' = {emrr(); cat('\n');topicIV()},
+          '4'=topicSelect()
   )
 }
 
@@ -673,6 +675,16 @@ ons<-function(){
   cat('\n')
   print(t(overbookedNo))
   cat('\n')
+
+}
+
+emrr<-function(){
+  # Import the file
+  x<-fileImport(TRUE)
+  # Convert it to data frame
+  df<-data.frame(x,row.names = 1)
+  # Ask for the hotel's capacity
+  hotelCapacity<-toInt(inpSplit('Hotel Capacity: '))
 
 }
 
