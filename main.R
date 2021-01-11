@@ -365,7 +365,7 @@ gr<-function(){
     # Ask for the room cost
     roomCost<-toInt(inpSplit('Ask for room cost:'))
     # Calculate the minimum rate (MAR)
-    mar<-(tdc-rac)/totalGroupRooms+12
+    mar<-(tdc-rac)/totalGroupRooms+roomCost
     # Calculate minimum contribution
     mc<-sum(serviceDf[grep("G.",rownames(serviceDf)),'Price'])*length(colnames(dc))+totalGroupRooms*mar
   }else{
@@ -380,7 +380,7 @@ gr<-function(){
     # Ask for the room cost
     roomCost<-toInt(inpSplit('Ask for room cost:'))
     # Calculate the minimum rate (MAR)
-    mar<-(tdc-rac)/totalGroupRooms+12
+    mar<-(tdc-rac)/totalGroupRooms+roomCost
     # Calculate minimum contribution
     preMc<-toInt(inpSplit('Enter the Combined Service Price for the Group:'))
     mc<-preMc+totalGroupRooms*mar

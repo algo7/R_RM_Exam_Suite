@@ -1,0 +1,9 @@
+DOW,Sun,Mon,Tues,Wed
+Constrained_Demand,397,381,396,238
+Room_Group_Demand,5,90,200,200
+FIT_Group,,,,
+Displaced_Transient,,,,
+T-Rooms,180,144,1,
+G-FB,12375,9900,1,
+G-Service_Business,15000,12000,1,
+
