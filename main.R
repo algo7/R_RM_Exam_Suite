@@ -622,7 +622,7 @@ obe<-function(){
   colnames(overbookedNo)<-colnames(df.1)
   rownames(overbookedNo)<-'Overbook'
   # Print the result
-  cli_alert_success('Overbook Number: ')
+  cli_alert_success('Result: ')
   cat('\n')
   print("Table:")
   print(df)
@@ -633,13 +633,13 @@ obe<-function(){
   print("No Show Table:")
   print(noShowTables)
   cat('\n')
+  print("Overbooked Number")
   print(overbookedNo)
   cat('\n')
 
-
 }
 
-ons<-function(){
+obs<-function(){
   # Import the file
   x<-fileImport(TRUE)
   # Convert it to data frame
@@ -697,8 +697,6 @@ ons<-function(){
       overbookedNo<-c(overbookedNo,colnames(biTable[i,][lookedUpVals[[i]]]))
     }
 
-
-
   }
 
   # Convert the overbooked no. to df
@@ -706,12 +704,22 @@ ons<-function(){
   # Assign the col. & row names
   colnames(overbookedNo)<-rownames(df.1)
   rownames(overbookedNo)<-'Overbook'
+  # Now show table:
+  no_show_table<-cbind(df.1,t(overbookedNo))
+  no_show_table<-cbind(no_show_table,df[,'Average.Arrivals',drop=FALSE])
   # Print the result
-  cli_alert_success('Overbook Number: ')
+  cli_alert_success('Results: ')
+
   cat('\n')
+  print("No Show Table:")
+  print(no_show_table)
+  cat('\n')
+  print("Occurence:")
+  print(biTable)
+  cat('\n')
+  print("Overbooked Number:")
   print(t(overbookedNo))
   cat('\n')
-
 }
 
 emrr<-function(){
