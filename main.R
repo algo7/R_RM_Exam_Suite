@@ -387,9 +387,6 @@ gr<-function(){
   }
 
 
-
-
-
  # Results
   cli_alert_success('Room Demanded: ')
   cat('\n')
@@ -627,8 +624,18 @@ obe<-function(){
   # Print the result
   cli_alert_success('Overbook Number: ')
   cat('\n')
+  print("Table:")
+  print(df)
+  cat('\n')
+  print("Occurence:")
+  print(df.1)
+  cat('\n')
+  print("No Show Table:")
+  print(noShowTables)
+  cat('\n')
   print(overbookedNo)
   cat('\n')
+
 
 }
 
