@@ -382,9 +382,10 @@ gr<-function(){
     # Calculate the minimum rate (MAR)
     mar<-(tdc-rac)/totalGroupRooms+roomCost
     # Calculate minimum contribution
-    preMc<-toInt(inpSplit('Enter the Combined Service Price for the Group:'))
+    preMc<-toInt(inpSplit('Enter the Combined Revenue for the Group:'))
     mc<-preMc+totalGroupRooms*mar
   }
+
 
 
 
